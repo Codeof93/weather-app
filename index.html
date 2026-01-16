@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Two-City Weather Vibes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .cities {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .city {
+      border-radius: 12px;
+      padding: 20px;
+      background: #f7f9fc;
+      text-align: center;
+    }
+
+    .city h2 {
+      margin: 0 0 10px;
+    }
+
+    .temp {
+      font-size: 48px;
+      font-weight: bold;
+    }
+
+    .emoji {
+      font-size: 36px;
+      margin-top: 5px;
+    }
+
+    .details {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    @media (max-width: 600px) {
+      .cities {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <h1>🌤️ Two-City Weather Check</h1>
+
+    <div class="cities">
+      <div class="city" id="rochester">
+        <h2>Rochester, NY</h2>
+        <div class="temp">--°</div>
+        <div class="emoji">⏳</div>
+        <div class="details">Loading...</div>
+      </div>
+
+      <div class="city" id="santacruz">
+        <h2>Santa Cruz, CA</h2>
+        <div class="temp">--°</div>
+        <div class="emoji">⏳</div>
+        <div class="details">Loading...</div>
+      </div>
+    </div>
+
+    <footer>
+      Data from Open-Meteo • No ads • Just vibes
+    </footer>
+  </div>
+
+  <script>
+    async function loadWeather(cityId, lat, lon) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const temp = Math.round(data.current_weather.temperature);
+        const wind = Math.round(data.current_weather.windspeed);
+
+        const cityEl = document.getElementById(cityId);
+        cityEl.querySelector(".temp").textContent = temp + "°F";
+        cityEl.querySelector(".details").textContent = `Wind: ${wind} mph`;
+
+        let emoji = "😐";
+        if (temp < 32) emoji = "🥶";
+        else if (temp < 50) emoji = "🧥";
+        else if (temp < 70) emoji = "🙂";
+        else if (temp < 85) emoji = "😎";
+        else emoji = "🔥";
+
+        cityEl.querySelector(".emoji").textContent = emoji;
+
+      } catch (err) {
+        document.getElementById(cityId).querySelector(".details").textContent =
+          "Weather unavailable 😬";
+      }
+    }
+
+    // Rochester, NY
+    loadWeather("rochester", 43.1566, -77.6088);
+
+    // Santa Cruz, CA
+    loadWeather("santacruz", 36.9741, -122.0308);
+  </script>
+
+</body>
+</html>
